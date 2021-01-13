@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include <WiFiClient.h>
 #include <ESPHue.h>
+#include "./env.h"
 
 // State variables
 byte pirState = LOW;
