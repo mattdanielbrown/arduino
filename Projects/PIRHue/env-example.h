@@ -1,9 +1,0 @@
-#define WIFI_SSID ""
-#define WIFI_PASS ""
-#define HUE_API_KEY ""
-#define HUE_HOST ""
-#define WIFI_LED_GPIO 2
-#define LED_PIR_GPIO 16
-#define PIR_GPIO 4
-#define HUE_LIGHT_ID 5
-#define REFRESH_LIGHT_STATE_TIMEOUT 10000

@@ -5,7 +5,12 @@
 #include <ArduinoJson.h>
 #include <WiFiClient.h>
 #include <ESPHue.h>
-#include "./env.h"
+#include "../../env.h"
+
+#define LED_PIR_GPIO 16
+#define PIR_GPIO 4
+#define HUE_LIGHT_ID 5
+#define REFRESH_LIGHT_STATE_TIMEOUT 10000
 
 // State variables
 byte pirState = LOW;
