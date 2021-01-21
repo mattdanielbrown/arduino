@@ -10,14 +10,14 @@
 #endif
 
 #ifndef SERIAL_PORT
-#define SERIAL_PORT 0
+#define SERIAL_PORT 115200
 #endif
 
 #ifndef WIFI_ENABLED
 #define WIFI_ENABLED 0
 #define WIFI_SSID ""
 #define WIFI_PASS ""
-#define WIFI_LED_GPIO 2
+#define WIFI_LED_GPIO 16
 #endif
 
 #ifndef OTA_ENABLED
