@@ -1,13 +1,11 @@
-#include <Servo.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WiFiMulti.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
+#include <Servo.h>
 
-#if __has_include("../../env.h")
+// Comment this
 #include "../../env.h"
-#endif
 
 #ifndef SERIAL_PORT
 #define SERIAL_PORT 115200
