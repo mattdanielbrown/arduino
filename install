@@ -1,4 +1,4 @@
 #!/bin/bash
 set -x
-mv ~/Documents/Arduino ~/Documents/Arduino-backup
+[ -d ~/Documents/Arduino ] && mv ~/Documents/Arduino ~/Documents/Arduino-backup
 ln -svf "$(pwd)" ~/Documents/Arduino

@@ -6,7 +6,7 @@
 #include <ESPHue.h>
 
 // Comment this
-#include "/Users/flaviod/.drive/ProjectData/arduino/env.h"
+#include "../../env.h"
 
 #ifndef SERIAL_PORT
 #define SERIAL_PORT 115200
@@ -175,14 +175,13 @@ void setupPIR()
 
 void setup()
 {
-
 #if SERIAL_PORT > 0
   Serial.begin(115200);
 #endif
 #if WIFI_ENABLED == 1
   setupWifi();
 #endif
-#if MDNS_ENABLEDD == 1
+#if MDNS_ENABLED == 1
   setupMDNS();
 #endif
 #if OTA_ENABLED == 1
