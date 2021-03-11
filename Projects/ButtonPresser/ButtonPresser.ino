@@ -5,7 +5,7 @@
 #include <Servo.h>
 
 // Comment this
-#include "../../env.h"
+#include "/usr/local/share/arduino.env.h"
 
 #ifndef SERIAL_PORT
 #define SERIAL_PORT 115200
@@ -146,7 +146,7 @@ void serverHandleApi()
 {
   if (server.method() != HTTP_POST)
   {
-    server.send(405, "text/plain", "HTTP Method Not Allowed");
+    server.send(405, "application/json", "{\"error\":\"HTTP Method Not Allowed\"}");
     return;
   }
 
@@ -160,11 +160,11 @@ void serverHandleApi()
   {
     if (!_degree)
     {
-      server.send(400, "text/plain", "Degree value not provided");
+      server.send(400, "application/json", "{\"error\":\"Degree value not provided\"}");
       return;
     }
     myservo.write(_degree);
-    server.send(200, "text/plain", "OK");
+    server.send(200, "application/json", "{\"success\":true}");
     return;
   }
 
@@ -190,11 +190,11 @@ void serverHandleApi()
       }
     }
 
-    server.send(200, "text/plain", "OK");
+    server.send(200, "application/json", "{\"success\":true}");
     return;
   }
 
-  server.send(405, "text/plain", "Method Not Allowed");
+  server.send(405, "application/json", "{\"error\":\"Method Not Allowed\"}");
 }
 
 void setupServer()
