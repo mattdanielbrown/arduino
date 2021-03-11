@@ -13,27 +13,16 @@
 #define SERIAL_PORT 115200
 #endif
 
-#ifndef WIFI_SSID
+#ifndef WIFI_ENABLED
+#define WIFI_ENABLED 0
 #define WIFI_SSID ""
-#endif
-
-#ifndef WIFI_PASS
 #define WIFI_PASS ""
-#endif
-
-#ifndef WIFI_LED_GPIO
 #define WIFI_LED_GPIO 16
 #endif
 
 #ifndef OTA_ENABLED
 #define OTA_ENABLED 0
-#endif
-
-#ifndef OTA_PASSWORD
 #define OTA_PASSWORD "arduino"
-#endif
-
-#ifndef OTA_PORT
 #define OTA_PORT 8266
 #endif
 
@@ -111,6 +100,7 @@ void setupOTA()
 }
 #endif
 
+#if WIFI_ENABLED == 1
 void setupWifi()
 {
   Serial.print("Connecting to Wi-Fi...");
@@ -131,6 +121,7 @@ void setupWifi()
   Serial.print("Connected! IP address: ");
   Serial.println(WiFi.localIP());
 }
+#endif
 
 #if MDNS_ENABLED == 1
 void setupMDNS()
@@ -296,5 +287,11 @@ void loop()
 
 #if SERVER_ENABLED == 1
   server.handleClient();
+#endif
+#if OTA_ENABLED == 1
+  ArduinoOTA.handle();
+#endif
+#if MDNS_ENABLED == 1
+  MDNS.update();
 #endif
 }

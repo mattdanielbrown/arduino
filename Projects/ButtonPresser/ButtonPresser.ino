@@ -26,10 +26,13 @@
 
 #ifndef MDNS_ENABLED
 #define MDNS_ENABLED 0
-#define MDNS_NAME "buttonpresser"
 #endif
 
+// Identify the GPIO pin connected to the servo
 #define SERVO_GPIO 2
+
+// Name of this board on the local network
+#define MDNS_NAME "buttonpresser"
 
 #if OTA_ENABLED == 1
 void setupOTA()
@@ -213,7 +216,7 @@ void setup()
 #if WIFI_ENABLED == 1
   setupWifi();
 #endif
-#if MDNS_ENABLEDD == 1
+#if MDNS_ENABLED == 1
   setupMDNS();
 #endif
 #if OTA_ENABLED == 1
