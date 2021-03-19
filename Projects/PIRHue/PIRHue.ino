@@ -17,7 +17,6 @@
 #define WIFI_ENABLED 0
 #define WIFI_SSID ""
 #define WIFI_PASS ""
-#define WIFI_LED_GPIO 16
 #endif
 
 #ifndef OTA_ENABLED
@@ -42,6 +41,9 @@
 #define HUE_HOST ""
 #endif
 
+// Led to switch when WiFi is connected
+#define WIFI_LED_GPIO 2
+
 // Identify the GPIO pin connected to the PIR sensor
 #define PIR_GPIO 4
 
@@ -55,7 +57,7 @@
 #define REFRESH_LIGHT_STATE_TIMEOUT 10000
 
 // Name of this board on the local network
-#define MDNS_NAME "pirhue"
+#define MDNS_NAME "PirHue"
 
 // If set to 0, the board won't perform any action
 byte ENABLED = 1;
@@ -259,14 +261,14 @@ void setup()
 void loop()
 {
   currentTime = millis();
+  if (lastRefreshLightState + REFRESH_LIGHT_STATE_TIMEOUT < currentTime)
+  {
+    refreshLightState();
+    lastRefreshLightState = currentTime;
+  }
+
   if (ENABLED)
   {
-    if (lastRefreshLightState + REFRESH_LIGHT_STATE_TIMEOUT < currentTime)
-    {
-      refreshLightState();
-      lastRefreshLightState = currentTime;
-    }
-
     if (digitalRead(PIR_GPIO) == HIGH)
     {
       if (pirState == LOW)

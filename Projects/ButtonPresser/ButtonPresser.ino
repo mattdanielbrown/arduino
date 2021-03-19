@@ -15,7 +15,6 @@
 #define WIFI_ENABLED 0
 #define WIFI_SSID ""
 #define WIFI_PASS ""
-#define WIFI_LED_GPIO 16
 #endif
 
 #ifndef OTA_ENABLED
@@ -28,11 +27,17 @@
 #define MDNS_ENABLED 0
 #endif
 
+// Led to switch when WiFi is connected
+#define WIFI_LED_GPIO 2
+
 // Identify the GPIO pin connected to the servo
-#define SERVO_GPIO 2
+#define SERVO_GPIO 14
+
+// Identify the LED indicating an operation
+#define SERVO_LED_GPIO 16
 
 // Name of this board on the local network
-#define MDNS_NAME "buttonpresser"
+#define MDNS_NAME "ButtonPresser"
 
 #if OTA_ENABLED == 1
 void setupOTA()
@@ -111,6 +116,9 @@ void setupServo()
 {
   myservo.attach(SERVO_GPIO);
   myservo.write(0);
+
+  pinMode(SERVO_LED_GPIO, OUTPUT);
+  digitalWrite(SERVO_LED_GPIO, HIGH);
 }
 
 ESP8266WebServer server(80);
@@ -200,10 +208,17 @@ void serverHandleApi()
   server.send(405, "application/json", "{\"error\":\"Method Not Allowed\"}");
 }
 
+void serverHandleApiWithDebugLed()
+{
+  digitalWrite(SERVO_LED_GPIO, LOW);
+  serverHandleApi();
+  digitalWrite(SERVO_LED_GPIO, HIGH);
+}
+
 void setupServer()
 {
   server.on("/", serverHandleRoot);
-  server.on("/api", serverHandleApi);
+  server.on("/api", serverHandleApiWithDebugLed);
   server.begin();
   Serial.println("HTTP server started");
 }
