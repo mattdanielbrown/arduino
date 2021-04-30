@@ -37,10 +37,6 @@
 #define HUE_API_KEY ""
 #endif
 
-#ifndef HUE_HOST
-#define HUE_HOST ""
-#endif
-
 // Led to switch when WiFi is connected
 #define WIFI_LED_GPIO 2
 
@@ -206,7 +202,7 @@ byte lightState = 0;
 unsigned long currentTime;
 unsigned long lastRefreshLightState = -REFRESH_LIGHT_STATE_TIMEOUT;
 
-ESPHue myHue = ESPHue(wifiClient, HUE_API_KEY, HUE_HOST, 80);
+ESPHue myHue = ESPHue(wifiClient, HUE_API_KEY, "philips-hue.local", 80);
 
 void refreshLightState()
 {
