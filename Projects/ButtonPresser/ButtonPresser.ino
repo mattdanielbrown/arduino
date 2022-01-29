@@ -1,83 +1,65 @@
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
-#include <ArduinoOTA.h>
 #include <Servo.h>
 
 // Comment this
 #include "/usr/local/share/arduino.env.h"
 
-#ifndef SERIAL_PORT
-#define SERIAL_PORT 115200
-#endif
+#define WIFI_LED_GPIO 2   // Led to switch when WiFi is connected
+#define SERVO_GPIO 14     // Identify the GPIO pin connected to the servo
+#define SERVO_LED_GPIO 16 // Identify the LED indicating an operation
+#define MDNS_NAME "Nisse" // Name of this board on the local network
 
-#ifndef WIFI_ENABLED
-#define WIFI_ENABLED 0
-#define WIFI_SSID ""
-#define WIFI_PASS ""
-#endif
+Servo myservo;
+void setupServo()
+{
+  myservo.attach(SERVO_GPIO);
+  myservo.write(0);
 
-#ifndef OTA_ENABLED
-#define OTA_ENABLED 0
-#define OTA_PASSWORD "arduino"
-#define OTA_PORT 8266
-#endif
+  pinMode(SERVO_LED_GPIO, OUTPUT);
+  digitalWrite(SERVO_LED_GPIO, HIGH);
+}
 
-#ifndef MDNS_ENABLED
-#define MDNS_ENABLED 0
-#endif
-
-// Led to switch when WiFi is connected
-#define WIFI_LED_GPIO 2
-
-// Identify the GPIO pin connected to the servo
-#define SERVO_GPIO 14
-
-// Identify the LED indicating an operation
-#define SERVO_LED_GPIO 16
-
-// Name of this board on the local network
-#define MDNS_NAME "ButtonPresser"
-
-#if OTA_ENABLED == 1
+#ifdef OTA_ENABLED
+#include <ArduinoOTA.h>
 void setupOTA()
 {
   ArduinoOTA.setPort(OTA_PORT);
   ArduinoOTA.setPassword(OTA_PASSWORD);
 
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
+                        { Serial.printf("Progress: %u%%\r", (progress / (total / 100))); });
 
-  ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR)
-    {
-      Serial.println("Auth Failed");
-    }
-    else if (error == OTA_BEGIN_ERROR)
-    {
-      Serial.println("Begin Failed");
-    }
-    else if (error == OTA_CONNECT_ERROR)
-    {
-      Serial.println("Connect Failed");
-    }
-    else if (error == OTA_RECEIVE_ERROR)
-    {
-      Serial.println("Receive Failed");
-    }
-    else if (error == OTA_END_ERROR)
-    {
-      Serial.println("End Failed");
-    }
-  });
+  ArduinoOTA.onError([](ota_error_t error)
+                     {
+                       Serial.printf("Error[%u]: ", error);
+                       if (error == OTA_AUTH_ERROR)
+                       {
+                         Serial.println("Auth Failed");
+                       }
+                       else if (error == OTA_BEGIN_ERROR)
+                       {
+                         Serial.println("Begin Failed");
+                       }
+                       else if (error == OTA_CONNECT_ERROR)
+                       {
+                         Serial.println("Connect Failed");
+                       }
+                       else if (error == OTA_RECEIVE_ERROR)
+                       {
+                         Serial.println("Receive Failed");
+                       }
+                       else if (error == OTA_END_ERROR)
+                       {
+                         Serial.println("End Failed");
+                       }
+                     });
 
   ArduinoOTA.begin();
 }
 #endif
 
-#if WIFI_ENABLED == 1
+#ifdef WIFI_ENABLED
+#include <ESP8266WiFi.h>
+
 void setupWifi()
 {
   Serial.print("Connecting to Wi-Fi...");
@@ -100,7 +82,9 @@ void setupWifi()
 }
 #endif
 
-#if MDNS_ENABLED == 1
+#ifdef MDNS_ENABLED
+#include <ESP8266mDNS.h>
+
 void setupMDNS()
 {
   if (MDNS.begin(MDNS_NAME))
@@ -111,15 +95,8 @@ void setupMDNS()
 }
 #endif
 
-Servo myservo;
-void setupServo()
-{
-  myservo.attach(SERVO_GPIO);
-  myservo.write(0);
-
-  pinMode(SERVO_LED_GPIO, OUTPUT);
-  digitalWrite(SERVO_LED_GPIO, HIGH);
-}
+#ifdef SERVER_ENABLED
+#include <ESP8266WebServer.h>
 
 ESP8266WebServer server(80);
 
@@ -182,9 +159,9 @@ void serverHandleApi()
   if (method.equals("push"))
   {
     if (!_degree)
-      _degree = 45;
+      _degree = 30;
     if (!_delay)
-      _delay = 200;
+      _delay = 600;
     if (!_times)
       _times = 1;
     if (!_delaytimes)
@@ -205,7 +182,7 @@ void serverHandleApi()
     return;
   }
 
-  server.send(405, "application/json", "{\"error\":\"Method Not Allowed\"}");
+  server.send(404, "application/json", "{\"error\":\"Method not found\"}");
 }
 
 void serverHandleApiWithDebugLed()
@@ -222,32 +199,37 @@ void setupServer()
   server.begin();
   Serial.println("HTTP server started");
 }
+#endif
 
 void setup()
 {
-#if SERIAL_PORT > 0
+#ifdef SERIAL_PORT
   Serial.begin(115200);
 #endif
-#if WIFI_ENABLED == 1
+#ifdef WIFI_ENABLED
   setupWifi();
 #endif
-#if MDNS_ENABLED == 1
+#ifdef MDNS_ENABLED
   setupMDNS();
 #endif
-#if OTA_ENABLED == 1
+#ifdef OTA_ENABLED
   setupOTA();
 #endif
-  setupServo();
+#ifdef SERVER_ENABLED
   setupServer();
+#endif
+  setupServo();
 }
 
 void loop()
 {
-#if OTA_ENABLED == 1
+#ifdef OTA_ENABLED
   ArduinoOTA.handle();
 #endif
-#if MDNS_ENABLED == 1
+#ifdef MDNS_ENABLED
   MDNS.update();
 #endif
+#ifdef SERVER_ENABLED
   server.handleClient();
+#endif
 }
