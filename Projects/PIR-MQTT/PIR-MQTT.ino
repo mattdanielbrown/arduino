@@ -19,21 +19,59 @@ WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 unsigned long currentTime;
 
+void sendMQTTMessage(String topic, String message)
+{
+	if (client.publish(topic.c_str(), message.c_str()))
+	{
+		Serial.println("MQTT message sent");
+		return;
+	}
+
+	Serial.println("MQTT message not sent, reconnecting");
+	setupMQTT();
+	sendMQTTMessage(topic, message);
+}
+
 void onMotionDetected()
 {
 	Serial.println("Motion detected!");
 	digitalWrite(LED_PIR_GPIO, LOW);
-	client.publish("motion_detected", "1");
+	sendMQTTMessage("motion_detected", "1");
 }
 
 void onMotionEnded()
 {
 	Serial.println("Motion ended!");
 	digitalWrite(LED_PIR_GPIO, HIGH);
-	client.publish("motion_detected", "0");
+	sendMQTTMessage("motion_detected", "0");
 }
 
-void setupConnection()
+void setupMQTT()
+{
+	Serial.printf("The client %s is connecting to MQTT broker on %s...\n", MDNS_NAME, MQTT_BROKER);
+
+	client.setServer(MQTT_BROKER, MQTT_PORT);
+
+	while (!client.connected())
+	{
+		if (client.connect(MDNS_NAME, MQTT_USER, MQTT_PASS))
+		{
+			Serial.println("MQTT broker connected");
+			client.publish("active", "1");
+			digitalWrite(WIFI_LED_GPIO, HIGH);
+		}
+		else
+		{
+			Serial.print("MQTT connection failed: ");
+			Serial.print(client.state());
+
+			digitalWrite(WIFI_LED_GPIO, !digitalRead(WIFI_LED_GPIO));
+			delay(500);
+		}
+	}
+}
+
+void setupWifi()
 {
 	Serial.print("Connecting to Wi-Fi...");
 
@@ -54,29 +92,6 @@ void setupConnection()
 	Serial.println();
 	Serial.print("Connected! IP address: ");
 	Serial.println(WiFi.localIP());
-
-	client.setServer(MQTT_BROKER, MQTT_PORT);
-
-	Serial.printf("The client %s is connecting to MQTT broker on %s...\n", MDNS_NAME, MQTT_BROKER);
-
-	while (!client.connected())
-	{
-		if (client.connect(MDNS_NAME, MQTT_USER, MQTT_PASS))
-		{
-			Serial.println("MQTT broker connected");
-		}
-		else
-		{
-			Serial.print("MQTT connection failed: ");
-			Serial.print(client.state());
-
-			digitalWrite(WIFI_LED_GPIO, !digitalRead(WIFI_LED_GPIO));
-			delay(500);
-		}
-	}
-
-	client.publish("active", "1");
-	digitalWrite(WIFI_LED_GPIO, HIGH);
 }
 
 #ifdef OTA_ENABLED
@@ -148,7 +163,8 @@ void setup()
 	pinMode(PIR_GPIO, INPUT);
 	digitalWrite(LED_PIR_GPIO, HIGH);
 
-	setupConnection();
+	setupWifi();
+	setupMQTT();
 
 #ifdef MDNS_ENABLED
 	setupMDNS();
