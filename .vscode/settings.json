@@ -19,6 +19,7 @@
         "type_traits": "cpp",
         "vector": "cpp",
         "array": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "__locale": "c"
     }
 }
