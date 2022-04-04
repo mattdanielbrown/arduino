@@ -22,6 +22,9 @@
     "utility": "cpp",
     "__locale": "c",
     "stdexcept": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "complex": "cpp",
+    "ostream": "cpp",
+    "*.tcc": "cpp"
   }
 }
